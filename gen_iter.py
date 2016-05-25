@@ -19,12 +19,12 @@ from nltk.corpus import stopwords
 
 class SentIterable(object):
     
-# correct parsed corpus dump HERE
+# correct path to parsed corpus dump HERE
 
     dumpPath = '/run/media/robert/1TB-1/linuxfolder/pythonworks/corpusDump'
 #    pickleDump = open(dumpPath, 'rb')
     
- #   pickleDump = open()
+# self.sentCount to be inherited (got?) while creating context
     def __iter__(self):
         for sent in range(self.sentCount):
             yield pickle.load(self.pickleDump)
@@ -32,16 +32,22 @@ class SentIterable(object):
 
 stops = set(stopwords.words('russian'))
 
+# Looping over the corpus and generating pickle dump file that would give off
+# context pairs one by one
+
 def createContext(root_directory):
     
     pickleDump = open('/run/media/robert/1TB-1/linuxfolder/pythonworks/pickleDump', 'ab')
     dumpCounter = 0
-    
+
+# walking the corpus dir
+# files walked linewise
+
+
     for root, dirs, files in os.walk(root_directory):
             for fname in filter(lambda fname: fname.endswith('.conll'), files):
                 
-#                document = pandas.read_csv('/run/media/robert/1TB-1/linuxfolder/cash/rcorpora/pre1950/zhur_russru/october/vol.conll', 
- #                                          header = None, sep = '\t')
+
                 document = open(os.path.join(root, fname), 'r')
                 
                 
@@ -50,26 +56,27 @@ def createContext(root_directory):
                 sentDict = {}
                 sentCash = []
                 for line in document:
-    #                print(str(len(line)) + ' ETO DLINA!!!!!!!!!!!!!!!!!!!!!')
+ 
                     if len(line)<5:
                         continue
                     
                     line = line.split()
-   #                 print(line)
+                                        # Creating cash dictionary for sentence
+
                     wordCounter += 1
                     if wordCounter < int(line[0]):
-#                        print('ETO SHET4IK ' + str(wordCounter) + '!!!!!!!!!')
-#                        print('ETO NUMER '+ str(line[0]) + '!!!!')
+
                         if re.match('[A-Za-zА-Яа-я]+$', line[2]) != None:
                             sentDict.update({line[0]:{'word':line[2],'ref':line[6]}})
-  #                          print({line[0]:{'word':line[2],'ref':line[6]}})
+
                             
                         else:
                             sentDict.update({line[0]:{'word':None,'ref':line[6]}})
- #                           print({line[0]:{'word':line[2],'ref':line[6]}})
+
                             
                     else:
                         wordCounter = 0
+                                            # Creating a sentence (context pair) to be passed to word2vec later
                         for slot in sentDict:
                             if sentDict[slot]['word'] == None:
                                 continue
@@ -78,7 +85,7 @@ def createContext(root_directory):
                                 continue
                             sentCash.append(sentDict[slot]['word'])
                             if (sentDict[slot]['ref'] != 0 and sentDict[slot]['ref'] != '0'):
- #                               print(sentDict[slot]['ref'])
+
                                 try:
                             
                                     sentCash.append(sentDict[sentDict[slot]['ref']]['word'])
@@ -103,7 +110,7 @@ def createContext(root_directory):
                             sentDict.update({line[0]:{'word':line[2],'ref':line[6]}})
                         else:
                             sentDict.update({line[0]:{'word':None,'ref':line[6]}})
-#                           print({line[0]:{'word':line[2],'ref':line[6]}})
+
     pickleDump.close()
     return(dumpCounter)
                             
