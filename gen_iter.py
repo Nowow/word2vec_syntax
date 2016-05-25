@@ -47,7 +47,7 @@ def createContext(root_directory):
                 
                 
                 wordCounter = -1
-                sentDict = collections.defaultdict(int)
+                sentDict = collections.defaultdict(str)
                 sentCash = []
                 for line in document:
     #                print(str(len(line)) + ' ETO DLINA!!!!!!!!!!!!!!!!!!!!!')
@@ -83,7 +83,7 @@ def createContext(root_directory):
                             
                                     sentCash.append(sentDict[sentDict[slot]['ref']]['word'])
                                 except:
-                                    pass
+                                    continue
                             for slot2 in sentDict:
                                 if sentDict[slot2]['ref'] == slot:
                                     if sentDict[slot2]['word'] != None:
@@ -98,7 +98,7 @@ def createContext(root_directory):
                                 pickle.dump(sentCash,pickleDump)
                                 dumpCounter += 1
                             sentCash = []
-                        sentDict = collections.defaultdict(int)
+                        sentDict = collections.defaultdict(str)
                         if re.match('[A-Za-zА-Яа-я]+$', line[2]) != None:
                             sentDict.update({line[0]:{'word':line[2],'ref':line[6]}})
                         else:
