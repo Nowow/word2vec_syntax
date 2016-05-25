@@ -8,7 +8,7 @@ Created on Tue May 24 22:43:11 2016
 import pickle
 import os
 import re
-
+import collections
 # use nltk.download() to download stopwords corpus if not yet
 
 from nltk.corpus import stopwords
@@ -47,7 +47,7 @@ def createContext(root_directory):
                 
                 
                 wordCounter = -1
-                sentDict = {}
+                sentDict = collections.defaultdict(str)
                 sentCash = []
                 for line in document:
     #                print(str(len(line)) + ' ETO DLINA!!!!!!!!!!!!!!!!!!!!!')
@@ -95,7 +95,7 @@ def createContext(root_directory):
                                 pickle.dump(sentCash,pickleDump)
                                 dumpCounter += 1
                             sentCash = []
-                        sentDict = {}
+                        sentDict = collections.defaultdict(str)
                         if re.match('[A-Za-zА-Яа-я]+$', line[2]) != None:
                             sentDict.update({line[0]:{'word':line[2],'ref':line[6]}})
                         else:
