@@ -24,7 +24,7 @@ class SentIterable(object):
     dumpPath = '/run/media/robert/1TB-1/linuxfolder/pythonworks/corpusDump'
 #    pickleDump = open(dumpPath, 'rb')
     
-# self.sentCount to be inherited (got?) while creating context
+# self.sentCount to be inherited (got?) while creating context 86468867
     def __iter__(self):
         for sent in range(self.sentCount):
             yield pickle.load(self.pickleDump)
