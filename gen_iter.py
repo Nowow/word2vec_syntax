@@ -118,7 +118,8 @@ def createContext(root_directory):
                                 while refCounter < 10:
                                     refCounter += 1
 #                                    print('SPASITE')
-                                    if str(wordRef).startswith('0'):
+
+                                    if re.match('^[1-9][0-9]*$', wordRef) == None:
 #                                        print('counter increased')
                                         refCounter = 10
                                         continue
