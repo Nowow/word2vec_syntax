@@ -10,31 +10,14 @@ Created on Tue May 24 22:43:11 2016
 import pickle
 import os
 import re
-import collections
 # use nltk.download() to download stopwords corpus if not yet
 
-from nltk.corpus import stopwords
+
 
 
 # Iterable to be passed to word2vec class as sentences.
 # reads sentences one by one from picke dump
 
-class SentIterable(object):
-    
-# correct path to parsed corpus dump HERE
-
-    dumpPath = '/run/media/robert/1TB-1/linuxfolder/pythonworks/corpusDump'
-    
-    
-    
-    sentCount = 3410461
-#    pickleDump = open(dumpPath, 'rb')
-    
-# self.sentCount to be inherited (got?) while creating context 86468867
-#minicorpus length 3410461
-    def __iter__(self):
-        for sent in range(self.sentCount):
-            yield pickle.load(self.dumpOpened)
 
 
 #stops = set(stopwords.words('russian'))
@@ -57,7 +40,7 @@ stops = ['чтоб', 'между', 'какой', 'без', 'но', 'чуть', '
             'тот', 'какая', 'этот', 'же', 'где', 'ну', 'конечно',  
             'того', 'тут', 'была',  'всегда', 'свою', 'об', 'всех']
 
-futureStops = ['кто', 'что']
+# futureStops = ['кто', 'что']
 
 
 # Looping over the corpus and generating pickle dump file that would give off
@@ -111,41 +94,44 @@ def createContext(root_directory):
                             if sentDict[slot]['word'] in stops:
                                 
                                 continue
-                            sentCash.append(sentDict[slot]['word'])
+                            sentCash.append(sentDict[slot]['word']) # append target word if it is okay
+       # looking into word that's higher in hyerarchy
                             if (sentDict[slot]['ref'] != 0 and sentDict[slot]['ref'] != '0'):
                                 wordRef = sentDict[slot]['ref']
                                 refCounter = 0
                                 while refCounter < 10:
                                     refCounter += 1
-#                                    print('SPASITE')
-
-                                    if re.match('^[1-9][0-9]*$', wordRef) == None:
-#                                        print('counter increased')
-                                        refCounter = 10
-                                        continue
-                                    if sentDict[wordRef]['word'] in stops:
-#                                        print(sentDict[wordRef]['word'] + ' IS A STOPWORD, DEAL WITH IT!')
-                                        wordRef = sentDict[wordRef]['ref']
-                                   
-                                    else:
-                                        refCounter = 10
-    
-                                        try:
+                    
+                    #cycling through dependent word chain until good word fould or 10 tries
                                     
-                                            sentCash.append(sentDict[sentDict[slot]['ref']]['word'])
-#                                            print(sentCash)
-                                            
-                                        except:
-                                            continue
+
+                                    try:
+                                        if sentDict[wordRef]['word'] in stops:
+  
+                                            wordRef = sentDict[wordRef]['ref']
+                                       
+                                        else:
+                                            refCounter = 10
+        
+                                            try:
+                                        
+                                                sentCash.append(sentDict[sentDict[slot]['ref']]['word'])
+    #                                            print(sentCash)
+                                                
+                                            except:
+                                                continue
+                                    except:
+                                        pass
+        # looking into dependent words
+        # cycling through all words in a sentence again
                             for slot2 in sentDict:
                                 if sentDict[slot2]['ref'] == slot:
                                     if sentDict[slot2]['word'] != None:
                                         if re.match('[A-Za-zА-Яа-я]+$', sentDict[slot2]['word']) != None:
                                             if sentDict[slot2]['word'] not in stops:
                                                 sentCash.append(sentDict[slot2]['word'])
-#                                                print('THAT WAS NOT A STOPWORD, REMEMBER?? ' + sentDict[slot2]['word'])
-                                                # stopword check not working here, dont know why
-                                                # recheck
+                                        # if okay, stop here
+#
                                     if (sentDict[slot2]['word'] == None) or (sentDict[slot2]['word'] in stops):
                                         checkedSlot = slot2
                                         slotCounter = 0
@@ -163,11 +149,13 @@ def createContext(root_directory):
  #                                                       print(sentDict[slot3]['word'] +  ' is a GOOD WORD FROM SECOND CYCLE!')
                                                         sentCash.append(sentDict[slot3]['word'])
                                                         slotCounter = 10
+                        # veryfying no stopwords slipped
                             for k in filter(lambda k: k in stops, sentCash):
                                 sentCash.remove(k)
                             if len(sentCash) > 1:
 #                                print('Dumping.....')
                                 pickle.dump(sentCash,pickleDump)
+                        #pickling to a file
                                 dumpCounter += 1
                             sentCash = []
                         sentDict = {}
